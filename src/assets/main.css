@@ -1,0 +1,16 @@
+
+@font-face {
+	font-family: FuseBlackItalic;
+	src: url(./font/fuse-black-italic.woff2);
+}
+
+:root {
+	--main-font: FuseBlackItalic;
+	--primary-color: #9617BA;
+	--text-color: #FFFFFF;
+	--secondary-color: #C9FF45;
+}
+
+html, body, #root {
+	height: 100%;
+}
