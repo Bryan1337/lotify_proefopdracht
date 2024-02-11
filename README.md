@@ -1,46 +1,28 @@
 # lotify-proefopdracht
 
-This template should help get you started developing with Vue 3 in Vite.
+Made with Vite + Vue3 boilerplate (`npm create vue@latest`)
 
-## Recommended IDE Setup
+Comes with simple Storybook integration to help develop standalone components (`npx sb@latest`).
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+## Installation
 
-## Type Support for `.vue` Imports in TS
+### How to run
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin) to make the TypeScript language service aware of `.vue` types.
+- Create `.env` file in root dir
+- Add `VITE_APP_API_URL` To .env (`https://api.venki.nl/graphql`)
+- Run `npm i`
+- Run `npm run dev`
 
-If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has also implemented a [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) that is more performant. You can enable it by the following steps:
+### Notes
 
-1. Disable the built-in TypeScript Extension
-    1) Run `Extensions: Show Built-in Extensions` from VSCode's command palette
-    2) Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
-2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
+Most likely CORS issues will pop up due to requesting from a http/local environment to a https endpoint. There are some ways to get around this using chrome by  using the `--disable-web-security` flag and running chrome,. This is not so much recommended, and in normal situations either a local development api, a proxy or a dev api endpoint is used.
 
-## Customize configuration
+## Storybook
 
-See [Vite Configuration Reference](https://vitejs.dev/config/).
+Since the `VITE_APP_API_URL` expects a url that references an actual api that serves the data in the expected format, the component in question (`FeaturedProductItem`) can also be inspected locally in the Storybook UI.
 
-## Project Setup
+This also allows for the component to be tested with different state data (donation amount,  goal, ticket price, mobile layouts etc.).
 
-```sh
-npm install
-```
+#### How to run
 
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Type-Check, Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
+- Run `npm run storybook`

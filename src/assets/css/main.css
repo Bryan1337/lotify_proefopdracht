@@ -1,11 +1,12 @@
 
 @font-face {
 	font-family: FuseBlackItalic;
-	src: url(./font/fuse-black-italic.woff2);
+	src: url(Assets/font/fuse-black-italic.woff2);
 }
 
 :root {
 	--main-font: FuseBlackItalic;
+	--main-transition: all 300ms ease-in-out;
 	--primary-color: #9617BA;
 	--text-color: #FFFFFF;
 	--secondary-color: #C9FF45;

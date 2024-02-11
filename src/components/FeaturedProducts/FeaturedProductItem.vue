@@ -1,87 +1,113 @@
 <script setup lang="ts">
 
-import { computed } from 'vue';
+import { formatCurrency } from 'Scripts/currencyHelper';
+import type { Game } from 'Types/FeaturedProductTypes';
+import { computed, onMounted, ref, watch } from 'vue';
 
-interface Props {
-	game: Record<string, any>;
+const props = defineProps<Game>();
+/**
+ * Only show progress once the donationAmount exceeds or is equal to this value
+ */
+const showProgressThreshold = 500;
+/**
+ * 0 initially so we can animate it on mount
+ */
+const donationProgressPercentage = ref(0);
+
+const mounted = ref(false);
+
+const parsedProps = computed(() => {
+
+	const donationAmount = parseFloat(props.donationAmount);
+
+	const donationGoal = parseFloat(props.donationGoal);
+
+	const ticketPrice = parseFloat(props.ticketPrice);
+
+	const splitDescription = props.emailDescription.split(" ");
+
+	return {
+		donationAmount,
+		donationGoal,
+		ticketPrice,
+		firstWord: splitDescription[0],
+		otherWords: splitDescription.slice(1),
+		hasReachedGoal: (donationAmount >= donationGoal),
+		showProgress: (donationAmount >= showProgressThreshold),
+	};
+})
+
+const calculateProgressPercentage = () => {
+
+	donationProgressPercentage.value = ((parsedProps.value.donationAmount / parsedProps.value.donationGoal) * 100) >> 0;
 }
 
-const { game } = defineProps<Props>();
+/**
+ * Calculate the progress bar percentage once the component mounts
+ */
+onMounted(() => {
 
-const {
-	donationAmount,
-	donationGoal,
-	ticketPrice,
-	emailDescription,
-} = game;
+	requestAnimationFrame(() => {
 
-const [firstWord, ...otherWords] = emailDescription.split(" ");
+		mounted.value = true;
 
-const hasReachedGoal = (parseFloat(donationAmount) === parseFloat(donationGoal));
+		calculateProgressPercentage();
+	});
+})
 
-const showProgress = true || (parseFloat(donationAmount) >= 500);
+/** Watch these values and re-calculate the progress bar percentage once they update */
+watch(() => [
+	parsedProps.value.donationAmount,
+	parsedProps.value.donationGoal,
+], () => {
 
-const donationProgressPercentage = computed(() => {
-
-	if (parseFloat(donationGoal) === 0) {
-
-		return 0;
-	}
-
-	return ((parseFloat(donationAmount) / parseFloat(donationGoal)) * 100) >> 0;
+	calculateProgressPercentage();
 });
 
-const formatCurrency = (value: number = 0) => {
-
-	const numberFormat = Intl.NumberFormat('nl-NL', {
-		currency: 'EUR',
-		style: 'currency',
-		/** Only show fractions if value has decimals */
-		maximumFractionDigits: (value % 1 === 0) ? 0 : 2,
-		currencyDisplay: 'narrowSymbol',
-	});
-
-	return numberFormat.format(value);
-}
 
 </script>
 
 <template>
-	<article>
-		<div v-if="showProgress" class="progress-bar-wrapper">
+	<article :class="mounted ? 'show' : 'hide'">
+		<div class="progress-wrapper" :class="[parsedProps.showProgress ? 'show' : 'hide']">
 			<progress :value="donationProgressPercentage" max="100">
 			</progress>
 		</div>
-		<div class="featured-product">
+		<div class="fp">
 			<div class="fp-contents">
 				<span>
-					<p v-if="showProgress && hasReachedGoal">
-						<em> {{ formatCurrency(donationGoal) }} </em> opgehaald
-					</p>
-					<p v-if="showProgress && !hasReachedGoal">
-						<em> {{ formatCurrency(donationAmount) }} </em> van {{ formatCurrency(donationGoal) }}
-					</p>
+					<template v-if="parsedProps.showProgress">
+						<p v-if="parsedProps.hasReachedGoal">
+							<em> {{ formatCurrency(parsedProps.donationAmount) }} </em> opgehaald
+						</p>
+						<p v-if="!parsedProps.hasReachedGoal">
+							<em> {{ formatCurrency(parsedProps.donationAmount) }} </em> van {{
+								formatCurrency(parsedProps.donationGoal) }}
+						</p>
+					</template>
 				</span>
 				<p class="txt-grow">
 					<span>
-						<em>{{ firstWord }}</em> {{ otherWords.join(" ") }}
+						<em>{{ parsedProps.firstWord }}</em> {{ parsedProps.otherWords.join(" ") }}
 					</span>
 				</p>
 			</div>
-
-			<a :href="game.url">
-				Speel mee vanaf {{ formatCurrency(ticketPrice) }}
+			<a :href="props.url">
+				Speel mee vanaf {{ formatCurrency(parsedProps.ticketPrice) }}
 			</a>
 		</div>
-
 	</article>
 </template>
 
 <style scoped>
-
 article {
-
+	transition: var(--main-transition);
+	min-height: 480px;
+	max-height: 580px;
+	min-width: 300px;
 	max-width: 500px;
+	height: 100%;
+	width: 100%;
 }
 
 article:hover .txt-grow {
@@ -91,7 +117,7 @@ article:hover .txt-grow {
 .txt-grow {
 	display: flex;
 	flex-grow: 1;
-	transition: 250ms all;
+	transition: var(--main-transition);
 	align-items: flex-end;
 }
 
@@ -99,18 +125,45 @@ article:hover a {
 	transform: translateY(-48px);
 }
 
+
+.fp {
+	background-image: url("Assets/img/card_background.jpg");
+	background-repeat: no-repeat;
+	background-size: cover;
+	background-color: rgba(0, 0, 0, .2);
+	overflow: hidden;
+	transition: var(--main-transition);
+	height: 580px;
+}
+
+
 .fp-contents {
 	height: 100%;
 	display: flex;
 	flex-direction: column;
 }
 
+.show {
+	opacity: 1;
+	transition: var(--main-transition);
+	transition-delay: 500ms;
+}
+
+.hide {
+	opacity: 0;
+}
+
 progress {
+	transition: var(--main-transition);
 	height: 28px;
 	width: calc(100% + 8px);
 	appearance: none;
 	position: relative;
 	left: -4px;
+}
+
+progress::-webkit-progress-value {
+	transition: var(--main-transition);
 }
 
 progress[value]::-webkit-progress-bar {
@@ -119,7 +172,7 @@ progress[value]::-webkit-progress-bar {
 
 progress[value]::-webkit-progress-value {
 	background-color: var(--secondary-color);
-	transform: skewX(-15deg);
+	transform: skewX(-10deg);
 }
 
 em {
@@ -153,24 +206,12 @@ a {
 	align-items: center;
 	justify-content: center;
 	text-decoration: none;
-}
-
-.featured-product {
-	background-image: url("Assets/img/card_background.jpg");
-	background-repeat: no-repeat;
-	background-size: cover;
-	background-color: rgba(0, 0, 0, .2);
-	overflow: hidden;
-	height: 580px;
-}
-
-a {
-	transition: 250ms all;
+	transition: var(--main-transition);
 	position: relative;
 	transform: translateY(0%);
 }
 
-.progress-bar-wrapper {
+.progress-wrapper {
 	overflow: hidden;
 	position: relative;
 	top: 8px;

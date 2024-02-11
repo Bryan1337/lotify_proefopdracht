@@ -1,5 +1,5 @@
-import './assets/main.css';
-import './assets/reset.css';
+import 'Assets/css/main.css';
+import 'Assets/css/reset.css';
 import { createApp } from 'vue';
 import Wrapper from './Wrapper.vue';
 
