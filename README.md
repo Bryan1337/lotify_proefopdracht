@@ -33,7 +33,7 @@ Application was built & ran using the following versions:
 
 ### Notes
 
-Most likely CORS issues will pop up due to requesting from a http/local environment to a https endpoint. There are some ways to get around this using chrome by  using the `--disable-web-security` flag and running chrome,. This is not so much recommended, and in normal situations either a local development api, a proxy or a dev api endpoint is used.
+Most likely CORS issues will pop up due to requesting from a http/local environment to a https endpoint. There are some ways to get around this using chrome by  using the `--disable-web-security` flag and running chrome. In practice either a local development api, a proxy or a dev api endpoint is used.
 
 ## Storybook
 
