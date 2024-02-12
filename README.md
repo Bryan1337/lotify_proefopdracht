@@ -13,6 +13,8 @@ Comes with simple Storybook integration to help develop standalone components (`
 - Hover over card slides up CTA button, CTA button always visible on mobile devices
 - Framework Nuxt 3 / Vue 3
 
+[Figma design](https://www.figma.com/file/e8JqQpcKRNHIbsxeNsyr8p/Proefopdracht-Lotify----2024?type=design&node-id=12-1268&mode=design&t=AwJZJ6FkqUROhbds-0)
+
 ## Installation
 
 ### Requirements
