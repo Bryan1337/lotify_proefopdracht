@@ -4,7 +4,23 @@ Made with Vite + Vue3 boilerplate (`npm create vue@latest`)
 
 Comes with simple Storybook integration to help develop standalone components (`npx sb@latest`).
 
+## Provided acceptance criteria
+
+- Data (excluding images & links) served from graphQL endpoint
+- Cards fade in (0 -> 1 opacity)
+- Card loading state -> rgba(0,0,0 .2)
+- Progress bar visible after reaching € 500 donation amount
+- Hover over card slides up CTA button, CTA button always visible on mobile devices
+- Framework Nuxt 3 / Vue 3
+
 ## Installation
+
+### Requirements
+
+Application was built & ran using the following versions:
+
+- NPM V9.5.0
+- NodeJS V18.15.0
 
 ### How to run
 

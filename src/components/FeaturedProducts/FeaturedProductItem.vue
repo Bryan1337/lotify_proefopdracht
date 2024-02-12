@@ -2,19 +2,19 @@
 
 import { formatCurrency } from 'Scripts/currencyHelper';
 import type { Game } from 'Types/FeaturedProductTypes';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 const props = defineProps<Game>();
+
 /**
  * Only show progress once the donationAmount exceeds or is equal to this value
  */
 const showProgressThreshold = 500;
+
 /**
  * 0 initially so we can animate it on mount
  */
 const donationProgressPercentage = ref(0);
-
-const mounted = ref(false);
 
 const parsedProps = computed(() => {
 
@@ -43,19 +43,8 @@ const calculateProgressPercentage = () => {
 }
 
 /**
- * Calculate the progress bar percentage once the component mounts
+ * Watch these values and re-calculate the progress bar percentage once they update
  */
-onMounted(() => {
-
-	requestAnimationFrame(() => {
-
-		mounted.value = true;
-
-		calculateProgressPercentage();
-	});
-})
-
-/** Watch these values and re-calculate the progress bar percentage once they update */
 watch(() => [
 	parsedProps.value.donationAmount,
 	parsedProps.value.donationGoal,
@@ -64,42 +53,61 @@ watch(() => [
 	calculateProgressPercentage();
 });
 
+const imageLoaded = ref(false);
+
+const onImageLoaded = () => {
+
+	imageLoaded.value = true;
+}
 
 </script>
 
 <template>
-	<article :class="mounted ? 'show' : 'hide'">
+	<article>
 		<div class="progress-wrapper" :class="[parsedProps.showProgress ? 'show' : 'hide']">
 			<progress :value="donationProgressPercentage" max="100">
 			</progress>
 		</div>
 		<div class="fp">
-			<div class="fp-contents">
-				<span>
-					<template v-if="parsedProps.showProgress">
-						<p v-if="parsedProps.hasReachedGoal">
-							<em> {{ formatCurrency(parsedProps.donationAmount) }} </em> opgehaald
-						</p>
-						<p v-if="!parsedProps.hasReachedGoal">
-							<em> {{ formatCurrency(parsedProps.donationAmount) }} </em> van {{
-								formatCurrency(parsedProps.donationGoal) }}
-						</p>
-					</template>
-				</span>
-				<p class="txt-grow">
+			<img src="Assets/img/card_background.jpg" :onload="onImageLoaded" :class="[imageLoaded ? 'show' : 'hide']" />
+			<Transition @afterEnter="calculateProgressPercentage">
+				<div v-if="imageLoaded" class="fp-contents">
 					<span>
-						<em>{{ parsedProps.firstWord }}</em> {{ parsedProps.otherWords.join(" ") }}
+						<template v-if="parsedProps.showProgress">
+							<p v-if="parsedProps.hasReachedGoal">
+								<em> {{ formatCurrency(parsedProps.donationAmount) }} </em> opgehaald
+							</p>
+							<p v-if="!parsedProps.hasReachedGoal">
+								<em> {{ formatCurrency(parsedProps.donationAmount) }} </em> van {{ formatCurrency(parsedProps.donationGoal) }}
+							</p>
+						</template>
 					</span>
-				</p>
-			</div>
-			<a :href="props.url">
-				Speel mee vanaf {{ formatCurrency(parsedProps.ticketPrice) }}
-			</a>
+					<p class="card-text">
+						<span>
+							<em>{{ parsedProps.firstWord }}</em> {{ parsedProps.otherWords.join(" ") }}
+						</span>
+					</p>
+					<a :href="props.url">
+						Speel mee vanaf {{ formatCurrency(parsedProps.ticketPrice) }}
+					</a>
+				</div>
+			</Transition>
 		</div>
 	</article>
 </template>
 
 <style scoped>
+img {
+	background-color: rgba(0, 0, 0, .2);
+	transition: var(--main-transition);
+	object-fit: cover;
+	position: absolute;
+	height: 100%;
+	width: 100%;
+	top: 0;
+	left: 0;
+}
+
 article {
 	transition: var(--main-transition);
 	min-height: 480px;
@@ -110,27 +118,25 @@ article {
 	width: 100%;
 }
 
-article:hover .txt-grow {
-	transform: translateY(-48px);
+article:hover .card-text {
+	transform: translateY(0);
 }
 
-.txt-grow {
+.card-text {
 	display: flex;
 	flex-grow: 1;
 	transition: var(--main-transition);
 	align-items: flex-end;
+	transform: translateY(48px);
 }
 
 article:hover a {
-	transform: translateY(-48px);
+	transform: translateY(0);
 }
 
 
 .fp {
-	background-image: url("Assets/img/card_background.jpg");
-	background-repeat: no-repeat;
-	background-size: cover;
-	background-color: rgba(0, 0, 0, .2);
+	position: relative;
 	overflow: hidden;
 	transition: var(--main-transition);
 	height: 580px;
@@ -138,15 +144,17 @@ article:hover a {
 
 
 .fp-contents {
+	transition: var(--main-transition);
 	height: 100%;
 	display: flex;
 	flex-direction: column;
+	position: relative;
+	z-index: 1;
 }
 
 .show {
 	opacity: 1;
 	transition: var(--main-transition);
-	transition-delay: 500ms;
 }
 
 .hide {
@@ -183,11 +191,10 @@ p {
 	padding: 16px;
 	text-transform: uppercase;
 	font-family: var(--main-font);
-	font-size: 24px;
+	font-size: 32px;
 	color: #fff;
 	font-style: italic;
 	font-weight: 900;
-	line-height: 25.2px;
 }
 
 a {
@@ -208,7 +215,7 @@ a {
 	text-decoration: none;
 	transition: var(--main-transition);
 	position: relative;
-	transform: translateY(0%);
+	transform: translateY(100%);
 }
 
 .progress-wrapper {
@@ -220,16 +227,20 @@ a {
 
 @media (max-width: 600px) {
 
-	article:hover .txt-grow {
+	article:hover .card-text, .card-text {
 		transform: translateY(0);
 	}
 
-	.txt-grow {
+	.card-text {
 		align-items: center;
 	}
 
+	p {
+		font-size: 24px;
+	}
+
 	a {
-		transform: translateY(-48px);
+		transform: translateY(0);
 	}
 }
 </style>
